@@ -9,6 +9,7 @@ use rocket::figment::value::{Map, Value};
 use rocket_db_pools::Database;
 use tokio::sync::{mpsc, watch};
 
+mod contract;
 mod db;
 mod keypair;
 mod maker_cfd_actor;
