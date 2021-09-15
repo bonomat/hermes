@@ -52,6 +52,8 @@ jobs:
             os: ubuntu-latest
           - target: x86_64-apple-darwin
             os: macos-latest
+          - target: armv7-unknown-linux-gnueabihf
+            os: ubuntu-latest
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
