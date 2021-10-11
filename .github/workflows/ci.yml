@@ -102,12 +102,12 @@ jobs:
       - name: Install compiler for armhf arch
         run: |
           sudo apt-get update
-          sudo apt-get install gcc-arm-linux-gnueabihf
-      - run: cargo build --target=armv7-unknown-linux-gnueabihf --bins
+          sudo apt-get install musl-tools
+      - run: cargo build --target=armv7-unknown-linux-musleabihf --bins
       - name: Upload binaries
         uses: actions/upload-artifact@v2
         with:
           name: maker-and-taker-binaries-armv7
           path: |
-            target/armv7-unknown-linux-gnueabihf/debug/maker
-            target/armv7-unknown-linux-gnueabihf/debug/taker
+            target/armv7-unknown-linux-musleabihf/debug/maker
+            target/armv7-unknown-linux-musleabihf/debug/taker
