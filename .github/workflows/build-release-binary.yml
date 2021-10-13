@@ -145,15 +145,15 @@ jobs:
           cp target/${{ matrix.target }}/release/${{ matrix.bin }}.exe ./${{ matrix.bin }}.exe
           7z a -tzip ${{ steps.create-archive-name.outputs.archive }} ./${{ matrix.bin }}.exe
 
-      - name: Upload archive
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.BOTTY_GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./${{ steps.create-archive-name.outputs.archive }}
-          asset_name: ${{ steps.create-archive-name.outputs.archive }}
-          asset_content_type: application/gzip
+#      - name: Upload archive
+#        uses: actions/upload-release-asset@v1.0.2
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.BOTTY_GITHUB_TOKEN }}
+#        with:
+#          upload_url: ${{ github.event.release.upload_url }}
+#          asset_path: ./${{ steps.create-archive-name.outputs.archive }}
+#          asset_name: ${{ steps.create-archive-name.outputs.archive }}
+#          asset_content_type: application/gzip
 
       - name: Set up QEMU
         if: matrix.os != 'windows-latest' && matrix.os != 'macos-latest'
