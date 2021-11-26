@@ -166,11 +166,8 @@ jobs:
 
           7z x ${{matrix.bin}}_${{ github.event.release.tag_name }}_Linux_x86_64.tar -olinux/amd64/
 
-          chmod a+x linux/amd64/maker
-          chmod a+x linux/amd64/taker
-
-          chmod a+x linux/arm64/maker
-          chmod a+x linux/arm64/taker
+          chmod a+x linux/amd64/*
+          chmod a+x linux/arm64/*
 
       - name: Build docker image for ${{matrix.bin}}
         run: |
