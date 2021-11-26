@@ -8,8 +8,6 @@ LABEL "org.opencontainers.image.authors"="hello@itchysats.network"
 ARG TARGETPLATFORM
 ARG BINARY_PATH
 
-RUN echo "Copying $TARGETPLATFORM/$BINARY_PATH into container"
-
 COPY $TARGETPLATFORM/$BINARY_PATH binary
 
 RUN chmod a+x binary
