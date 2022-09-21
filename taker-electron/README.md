@@ -7,7 +7,7 @@ This project uses [neon](https://neon-bindings.com/docs/introduction) to embed t
 The following command compiles all rust dependencies and embeds the taker daemon into a Node.JS library, creating an index.node file which can be required by any javascript application.
 
 ```bash
-yarn install
+yarn install && yarn build:all
 ```
 
 ## How to start the project
@@ -20,7 +20,7 @@ yarn start
 
 ## How to package the project
 
-The following command will package the itchysats electron app based on your host platform for the architectures x64 and arm64.
+The following command will package the itchysats electron app based on your host platform.
 
 ```bash
 yarn make

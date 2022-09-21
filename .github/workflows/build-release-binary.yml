@@ -1,6 +1,9 @@
 name: "Attach binaries to GitHub release"
 
 on:
+  push:
+    branches:
+      - "feature/release-electron-app"
   release:
     types: [created]
 
@@ -91,3 +94,78 @@ jobs:
           asset_path: ./${{ steps.create-archive-name.outputs.archive }}
           asset_name: ${{ steps.create-archive-name.outputs.archive }}
           asset_content_type: application/gzip
+
+  build_electron:
+    runs-on: ${{ matrix.os }}
+    # we want to continue building all other packages if one fails
+    continue-on-error: true
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            electron-target: "x64"
+            rust-target: "x86_64-pc-windows-msvc"
+          - os: macos-latest
+            electron-target: "x64"
+            rust-target: "x86_64-apple-darwin"
+          - os: macos-latest
+            electron-target: "arm64"
+            rust-target: "aarch64-apple-darwin"
+          - os: ubuntu-latest
+            electron-target: "x64"
+            rust-target: "x86_64-unknown-linux-gnu"
+    defaults:
+      run:
+        working-directory: "taker-electron"
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+      - name: Setup rust toolchain
+        working-directory: "./"
+        run: rustup show
+      - name: Setup rust targets for aarch64-apple-darwin
+        if: matrix.rust-target == 'aarch64-apple-darwin'
+        run: rustup target add aarch64-apple-darwin
+      - uses: Swatinem/rust-cache@v2.0.0
+
+      - name: Install Protoc for Windows
+        if: matrix.os == 'windows-latest'
+        uses: arduino/setup-protoc@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install node.js and yarn
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+          architecture: ${{ matrix.target-electron }}
+          cache-dependency-path: |
+            taker-electron/yarn.lock
+            taker-frontend/yarn.lock
+
+      - name: Build taker frontend
+        working-directory: taker-frontend
+        shell: bash
+        run: |
+          yarn
+          yarn build
+
+      - name: Install taker-electron dependencies
+        run: |
+          yarn install
+
+      - name: Build taker-electron package
+        run: |
+          yarn build:all --target=${{ matrix.rust-target }}
+
+      - name: Make taker-electron package
+        run: |
+          yarn electron-forge make --arch=${{matrix.electron-target}}
+
+      - name: Publish the package to github
+        env:
+          GITHUB_TOKEN: ${{ secrets.ITCHY_GITHUB_TOKEN }}
+        run: |
+          yarn electron-forge publish --auth-token=$GITHUB_TOKEN --arch=${{matrix.electron-target}}
