@@ -17,6 +17,8 @@
     "**/sqlx-data.json",
     "maker-frontend/dist",
     "taker-frontend/dist",
+    "taker-electron/dist",
+    "taker-electron/out",
     "**/node_modules",
     "rocket-cookie-auth/example-http-cookie-auth.sql"
   ],
