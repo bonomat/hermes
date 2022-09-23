@@ -1,96 +1,101 @@
 name: "Attach binaries to GitHub release"
 
 on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "The new version in vX.Y.Z format."
+        required: true
   release:
     types: [created]
 
 jobs:
-  build_binaries:
-    name: Build and attach release binary
-    strategy:
-      matrix:
-        include:
-          - bin: taker
-            target: x86_64-unknown-linux-gnu
-            os: ubuntu-latest
-            archive_ext: tar
-          - bin: taker
-            target: aarch64-unknown-linux-gnu
-            os: ubuntu-latest
-            archive_ext: tar
-          - bin: taker
-            target: x86_64-apple-darwin
-            os: macos-latest
-            archive_ext: tar
-          - bin: maker
-            target: x86_64-unknown-linux-gnu
-            os: ubuntu-latest
-            archive_ext: tar
-          - bin: maker
-            target: aarch64-unknown-linux-gnu
-            os: ubuntu-latest
-            archive_ext: tar
-          - bin: maker
-            target: x86_64-apple-darwin
-            os: macos-latest
-            archive_ext: tar
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout tagged commit
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.release.target_commitish }}
-          token: ${{ secrets.ITCHY_GITHUB_TOKEN }}
-
-      - name: Fetch all tags (workaround for https://github.com/actions/checkout/issues/290)
-        run: git fetch --tags --force
-
-      - uses: ./.github/actions/build-release-binary
-        id: build
-        with:
-          target: ${{ matrix.target }}
-          binary: ${{ matrix.bin }}
-
-      # Remove once python 3 is the default
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.x"
-
-      - id: create-archive-name
-        shell: python # Use python to have a prettier name for the archive.
-        run: |
-          import platform
-          os_info = platform.uname()
-
-          arch = os_info.machine
-
-          triple = "${{ matrix.target }}".split("-")
-          arch = triple[0]
-
-          archive_name=f'${{ matrix.bin }}_${{ github.event.release.tag_name }}_{os_info.system}_{arch}.${{ matrix.archive_ext }}'
-
-          print(f'::set-output name=archive::{archive_name}')
-
-      - name: Pack macos archive
-        if: matrix.os == 'macos-latest'
-        shell: bash
-        run: gtar -C ./target/${{ matrix.target }}/release --create --file=${{ steps.create-archive-name.outputs.archive }} ${{ matrix.bin }}
-
-      - name: Pack linux archive
-        if: matrix.os == 'ubuntu-latest'
-        shell: bash
-        run: tar -C ./target/${{ matrix.target }}/release --create --file=${{ steps.create-archive-name.outputs.archive }} ${{ matrix.bin }}
-
-      - name: Upload archive
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.ITCHY_GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./${{ steps.create-archive-name.outputs.archive }}
-          asset_name: ${{ steps.create-archive-name.outputs.archive }}
-          asset_content_type: application/gzip
+  #  build_binaries:
+  #    name: Build and attach release binary
+  #    strategy:
+  #      matrix:
+  #        include:
+  #          - bin: taker
+  #            target: x86_64-unknown-linux-gnu
+  #            os: ubuntu-latest
+  #            archive_ext: tar
+  #          - bin: taker
+  #            target: aarch64-unknown-linux-gnu
+  #            os: ubuntu-latest
+  #            archive_ext: tar
+  #          - bin: taker
+  #            target: x86_64-apple-darwin
+  #            os: macos-latest
+  #            archive_ext: tar
+  #          - bin: maker
+  #            target: x86_64-unknown-linux-gnu
+  #            os: ubuntu-latest
+  #            archive_ext: tar
+  #          - bin: maker
+  #            target: aarch64-unknown-linux-gnu
+  #            os: ubuntu-latest
+  #            archive_ext: tar
+  #          - bin: maker
+  #            target: x86_64-apple-darwin
+  #            os: macos-latest
+  #            archive_ext: tar
+  #    runs-on: ${{ matrix.os }}
+  #    steps:
+  #      - name: Checkout tagged commit
+  #        uses: actions/checkout@v3
+  #        with:
+  #          fetch-depth: 0
+  #          ref: ${{ github.event.release.target_commitish }}
+  #          token: ${{ secrets.ITCHY_GITHUB_TOKEN }}
+  #
+  #      - name: Fetch all tags (workaround for https://github.com/actions/checkout/issues/290)
+  #        run: git fetch --tags --force
+  #
+  #      - uses: ./.github/actions/build-release-binary
+  #        id: build
+  #        with:
+  #          target: ${{ matrix.target }}
+  #          binary: ${{ matrix.bin }}
+  #
+  #      # Remove once python 3 is the default
+  #      - uses: actions/setup-python@v4
+  #        with:
+  #          python-version: "3.x"
+  #
+  #      - id: create-archive-name
+  #        shell: python # Use python to have a prettier name for the archive.
+  #        run: |
+  #          import platform
+  #          os_info = platform.uname()
+  #
+  #          arch = os_info.machine
+  #
+  #          triple = "${{ matrix.target }}".split("-")
+  #          arch = triple[0]
+  #
+  #          archive_name=f'${{ matrix.bin }}_${{ github.event.release.tag_name }}_{os_info.system}_{arch}.${{ matrix.archive_ext }}'
+  #
+  #          print(f'::set-output name=archive::{archive_name}')
+  #
+  #      - name: Pack macos archive
+  #        if: matrix.os == 'macos-latest'
+  #        shell: bash
+  #        run: gtar -C ./target/${{ matrix.target }}/release --create --file=${{ steps.create-archive-name.outputs.archive }} ${{ matrix.bin }}
+  #
+  #      - name: Pack linux archive
+  #        if: matrix.os == 'ubuntu-latest'
+  #        shell: bash
+  #        run: tar -C ./target/${{ matrix.target }}/release --create --file=${{ steps.create-archive-name.outputs.archive }} ${{ matrix.bin }}
+  #
+  #      - name: Upload archive
+  #        uses: actions/upload-release-asset@v1.0.2
+  #        env:
+  #          GITHUB_TOKEN: ${{ secrets.ITCHY_GITHUB_TOKEN }}
+  #        with:
+  #          upload_url: ${{ github.event.release.upload_url }}
+  #          asset_path: ./${{ steps.create-archive-name.outputs.archive }}
+  #          asset_name: ${{ steps.create-archive-name.outputs.archive }}
+  #          asset_content_type: application/gzip
 
   build_electron:
     runs-on: ${{ matrix.os }}
