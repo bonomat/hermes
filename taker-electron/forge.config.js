@@ -4,7 +4,7 @@ module.exports = {
         "appBundleId": "ItchySats",
         "icon": "logo.icns",
         "overwrite": true,
-        "appVersion": "0.6.1",
+        "appVersion": "0.6.2",
     },
     "makers": [
         {
