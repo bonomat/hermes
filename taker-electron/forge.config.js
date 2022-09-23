@@ -1,6 +1,6 @@
 module.exports = {
     "packagerConfig": {
-        "name": "ItchySats",
+        "name": "ItchySats Desktop",
         "appBundleId": "ItchySats",
         "icon": "logo.icns",
         "overwrite": true,
