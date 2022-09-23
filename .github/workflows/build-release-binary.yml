@@ -106,13 +106,8 @@ jobs:
         include:
           - os: windows-latest
             electron-target: "x64"
-            rust-target: "x86_64-pc-windows-msvc"
           - os: macos-latest
-            electron-target: "x64"
-            rust-target: "x86_64-apple-darwin"
-          - os: macos-latest
-            electron-target: "arm64"
-            rust-target: "aarch64-apple-darwin"
+            electron-target: "x64,arm64"
     defaults:
       run:
         working-directory: "taker-electron"
@@ -131,9 +126,6 @@ jobs:
       - name: Setup rust toolchain
         working-directory: "./"
         run: rustup show
-      - name: Setup rust targets for aarch64-apple-darwin
-        if: matrix.rust-target == 'aarch64-apple-darwin'
-        run: rustup target add aarch64-apple-darwin
       - uses: Swatinem/rust-cache@v2.0.0
 
       - name: Install Protoc for Windows
@@ -165,7 +157,7 @@ jobs:
 
       - name: Build taker-electron package
         run: |
-          yarn build:all --target=${{ matrix.rust-target }}
+          yarn build:all 
 
       - name: Make taker-electron package
         run: |
