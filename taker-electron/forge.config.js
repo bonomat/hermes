@@ -10,8 +10,14 @@ module.exports = {
             "name": "@electron-forge/maker-squirrel",
             "config": {
                 "name": "taker_electron",
-                "setupIcon": "images/icon.ico"
+                "setupIcon": "images/icon.ico",
             },
+        },
+        {
+            "name": "@electron-forge/maker-zip",
+            "platforms": [
+                "darwin",
+            ],
         },
         {
             "name": "@electron-forge/maker-dmg",
@@ -26,7 +32,7 @@ module.exports = {
                     "owner": "bonomat",
                     "name": "hermes",
                 },
-                "icon": "images/icon.icns"
+                "icon": "images/icon.icns",
             },
         },
     ],
