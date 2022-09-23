@@ -1,9 +1,6 @@
 name: "Attach binaries to GitHub release"
 
 on:
-  push:
-    branches:
-      - "feature/release-electron-app"
   release:
     types: [created]
 
@@ -119,8 +116,16 @@ jobs:
         working-directory: "taker-electron"
 
     steps:
-      - name: Check out Git repository
+      - name: Checkout tagged commit
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.release.target_commitish }}
+          token: ${{ secrets.ITCHY_GITHUB_TOKEN }}
+
+      - name: Fetch all tags (workaround for https://github.com/actions/checkout/issues/290)
+        run: git fetch --tags --force
+
       - name: Setup rust toolchain
         working-directory: "./"
         run: rustup show
