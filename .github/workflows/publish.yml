@@ -9,6 +9,7 @@ on:
 
 jobs:
   publish:
+    continue-on-error: true
     runs-on: ${{ matrix.os }}
 
     strategy:
