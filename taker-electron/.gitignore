@@ -20,4 +20,4 @@ npm-debug.log.*
 /target
 /testnet
 
-index.nodegst
+index.node
