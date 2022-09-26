@@ -20,7 +20,8 @@
     "taker-electron/dist",
     "taker-electron/out",
     "**/node_modules",
-    "rocket-cookie-auth/example-http-cookie-auth.sql"
+    "rocket-cookie-auth/example-http-cookie-auth.sql",
+    "taker-electron/release/app"
   ],
   "plugins": [
     "https://plugins.dprint.dev/markdown-0.13.0.wasm",
