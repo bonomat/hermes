@@ -38,9 +38,9 @@ jobs:
           cache-dependency-path: |
             taker-electron/package-lock.json
 
-      - name: Prepare package.json with new version
+      - name: Prepare package.json with new version ${{github.event.inputs.version}}
         run: |
-          jq '.version="${{input.version}}"' ./release/app/package.json > /tmp/package.json
+          jq '.version="${{github.event.inputs.version}}"' ./release/app/package.json > /tmp/package.json
           mv /tmp/package.json ./release/app/package.json       
           cat ./release/app/package.json
 
