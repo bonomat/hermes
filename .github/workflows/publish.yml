@@ -20,8 +20,25 @@ jobs:
         working-directory: "taker-electron"
 
     steps:
-      - name: Checkout git repo
-        uses: actions/checkout@v1
+      - name: Checkout tagged commit
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.ITCHY_GITHUB_TOKEN }}
+
+      - name: Fetch all tags (workaround for https://github.com/actions/checkout/issues/290)
+        run: git fetch --tags --force
+
+      - name: Setup rust toolchain
+        working-directory: "./"
+        run: rustup show
+      - uses: Swatinem/rust-cache@v2.0.0
+
+      - name: Install Protoc for Windows
+        if: matrix.os == 'windows-latest'
+        uses: arduino/setup-protoc@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Node and Yarn
         uses: actions/setup-node@v1
@@ -31,7 +48,14 @@ jobs:
           cache-dependency-path: |
             taker-frontend/yarn.lock
 
-      - name: Install Node and Npm
+      - name: Build taker frontend
+        working-directory: taker-frontend
+        shell: bash
+        run: |
+          yarn
+          yarn build
+
+      - name: Install Node and Npm for taker-electron
         uses: actions/setup-node@v1
         with:
           node-version: 16
@@ -39,15 +63,19 @@ jobs:
           cache-dependency-path: |
             taker-electron/package-lock.json
 
-      - name: Prepare package.json with new version ${{github.event.inputs.version}}
-        run: |
-          jq '.version="${{github.event.inputs.version}}"' ./release/app/package.json > ./release/app/package.json
-          cat ./release/app/package.json
+#      - name: Prepare package.json with new version ${{github.event.inputs.version}}
+#        run: |
+#          jq '.version="${{github.event.inputs.version}}"' ./release/app/package.json > ./release/app/package.json
+#          cat ./release/app/package.json
 
-      - name: Install and build
+      - name: Install
         run: |
           npm install
+      - name: Postinstall
+        run: |
           npm run postinstall
+      - name: Build
+        run: |
           npm run build
 
       - name: Publish releases
