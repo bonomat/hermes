@@ -67,10 +67,22 @@ jobs:
           cache-dependency-path: |
             taker-electron/package-lock.json
 
-#      - name: Prepare package.json with new version ${{github.event.inputs.version}}
-#        run: |
-#          jq '.version="${{github.event.inputs.version}}"' ./release/app/package.json > ./release/app/package.json
-#          cat ./release/app/package.json
+      #      - name: Prepare package.json with new version ${{github.event.inputs.version}}
+      #        run: |
+      #          jq '.version="${{github.event.inputs.version}}"' ./release/app/package.json > ./release/app/package.json
+      #          cat ./release/app/package.json
+
+      - name: package.json change version to ${{github.event.inputs.version}}
+        id: info
+        uses: jaywcjlove/github-action-package@main
+        with:
+          path: ./release/app/package.json
+          data: |
+            {
+              "version": "${{github.event.inputs.version}}"
+            }
+      - name: Cat package.json
+        run: cat ./release/app/package.json
 
       - name: Install
         run: |
