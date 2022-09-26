@@ -14,7 +14,11 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-latest, windows-latest]
+        include:
+          - os: macos-latest
+            package_arg: --mac
+          - os: windows-latest
+            package_arg: --win
     defaults:
       run:
         working-directory: "taker-electron"
@@ -88,4 +92,4 @@ jobs:
           # This is used for uploading release assets to github
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npm exec electron-builder -- --publish always --win --mac
+          npm exec electron-builder -- --publish always ${{matrix.package_arg}}
