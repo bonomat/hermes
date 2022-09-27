@@ -17,13 +17,16 @@ jobs:
         include:
           - os: macos-latest
             package_arg: --mac --arm64
+            arch: arm64
             target: aarch64-apple-darwin
-          - os: macos-latest
-            package_arg: --mac --x64
-            target: x86_64-apple-darwin
-          - os: windows-latest
-            package_arg: --win --x64
-            target: x86_64-pc-windows-msvc
+#          - os: macos-latest
+#            package_arg: --mac --x64
+#            target: x86_64-apple-darwin
+#            arch: x64
+#          - os: windows-latest
+#            package_arg: --win --x64
+#            target: x86_64-pc-windows-msvc
+#            arch: x64
     defaults:
       run:
         working-directory: "taker-electron"
@@ -72,7 +75,7 @@ jobs:
           cache-dependency-path: |
             taker-electron/package-lock.json
 
-      - name: package.json change version to ${{github.event.inputs.version}}
+      - name: Bump version in package.json to ${{github.event.inputs.version}}
         id: info
         uses: jaywcjlove/github-action-package@main
         with:
@@ -81,15 +84,14 @@ jobs:
             {
               "version": "${{github.event.inputs.version}}"
             }
-      - name: Cat package.json
-        run: cat ./release/app/package.json
-
       - name: Install
         run: |
           npm install
+
       - name: Postinstall
         run: |
-          npm run postinstall
+          npm exec electron-builder -- install-app-deps --arch=${{matrix.arch}}
+          npm run build:dll
 
       - name: Build rust files ${{matrix.target}}
         run: |
