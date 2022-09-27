@@ -106,7 +106,7 @@ jobs:
           npm run build:main
       - name: Build electron files rendered
         run: |
-          npm run build:main
+          npm run build:renderer
 
       - name: Publish releases
         env:

@@ -109,9 +109,7 @@
     "afterSign": ".erb/scripts/notarize.js",
     "mac": {
       "target": {
-        "target": "default",
-        "arch": [
-        ]
+        "target": "dmg"
       },
       "type": "distribution",
       "hardenedRuntime": true,
