@@ -16,9 +16,14 @@ jobs:
       matrix:
         include:
           - os: macos-latest
-            package_arg: --mac
+            package_arg: --mac --arm64
+            target: aarch64-apple-darwin
+          - os: macos-latest
+            package_arg: --mac --x64
+            target: x86_64-apple-darwin
           - os: windows-latest
-            package_arg: --win
+            package_arg: --win --x64
+            target: x86_64-pc-windows-msvc
     defaults:
       run:
         working-directory: "taker-electron"
@@ -67,11 +72,6 @@ jobs:
           cache-dependency-path: |
             taker-electron/package-lock.json
 
-      #      - name: Prepare package.json with new version ${{github.event.inputs.version}}
-      #        run: |
-      #          jq '.version="${{github.event.inputs.version}}"' ./release/app/package.json > ./release/app/package.json
-      #          cat ./release/app/package.json
-
       - name: package.json change version to ${{github.event.inputs.version}}
         id: info
         uses: jaywcjlove/github-action-package@main
@@ -90,7 +90,12 @@ jobs:
       - name: Postinstall
         run: |
           npm run postinstall
-      - name: Build
+
+      - name: Build rust files
+        run: |
+          npm run build:release --target=${{matrix.target}}
+
+      - name: Build electron files
         run: |
           npm run build
 
