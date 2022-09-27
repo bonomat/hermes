@@ -147,7 +147,8 @@
     "publish": {
       "provider": "github",
       "owner": "bonomat",
-      "repo": "hermes"
+      "repo": "hermes",
+      "releaseType": "release"
     }
   }
 }
