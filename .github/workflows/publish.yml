@@ -91,9 +91,9 @@ jobs:
         run: |
           npm run postinstall
 
-      - name: Build rust files
+      - name: Build rust files ${{matrix.target}}
         run: |
-          npm run build:release --target=${{matrix.target}}
+          npm run build:rust --release --target=${{matrix.target}}
 
       - name: Build electron files
         run: |
