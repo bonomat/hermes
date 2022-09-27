@@ -19,14 +19,14 @@ jobs:
             package_arg: --mac --arm64
             arch: arm64
             target: aarch64-apple-darwin
-#          - os: macos-latest
-#            package_arg: --mac --x64
-#            target: x86_64-apple-darwin
-#            arch: x64
-#          - os: windows-latest
-#            package_arg: --win --x64
-#            target: x86_64-pc-windows-msvc
-#            arch: x64
+          - os: macos-latest
+            package_arg: --mac
+            target: x86_64-apple-darwin
+            arch: x64
+          - os: windows-latest
+            package_arg: --win --x64
+            target: x86_64-pc-windows-msvc
+            arch: x64
     defaults:
       run:
         working-directory: "taker-electron"
@@ -88,7 +88,11 @@ jobs:
         run: |
           npm install
 
-      - name: Postinstall
+      - name: Install-app-deps
+        run: |
+          npm run build:dll
+
+      - name: Build dll
         run: |
           npm exec electron-builder -- install-app-deps --arch=${{matrix.arch}}
           npm run build:dll
@@ -97,9 +101,12 @@ jobs:
         run: |
           npm run build:rust --release --target=${{matrix.target}}
 
-      - name: Build electron files
+      - name: Build electron files main
         run: |
-          npm run build
+          npm run build:main
+      - name: Build electron files rendered
+        run: |
+          npm run build:main
 
       - name: Publish releases
         env:
