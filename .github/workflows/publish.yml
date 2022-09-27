@@ -76,7 +76,7 @@ jobs:
         id: info
         uses: jaywcjlove/github-action-package@main
         with:
-          path: ./release/app/package.json
+          path: taker-electron/release/app/package.json
           data: |
             {
               "version": "${{github.event.inputs.version}}"
