@@ -52,6 +52,10 @@ jobs:
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Setup rust targets for aarch64-apple-darwin
+        if: matrix.rust-target == 'aarch64-apple-darwin'
+        run: rustup target add aarch64-apple-darwin
+
       - name: Install Node and Yarn
         uses: actions/setup-node@v3
         with:
@@ -67,11 +71,11 @@ jobs:
           yarn
           yarn build
 
-      - name: Install Node and Npm for taker-electron
+      - name: Install Node and Yarn for taker-electron
         uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: npm
+          cache: yarn
           cache-dependency-path: |
             taker-electron/package-lock.json
 
@@ -86,27 +90,27 @@ jobs:
             }
       - name: Install
         run: |
-          npm install
+          yarn install
 
       - name: Install-app-deps
         run: |
-          npm run build:dll
+          yarn run build:dll
 
       - name: Build dll
         run: |
-          npm exec electron-builder -- install-app-deps --arch=${{matrix.arch}}
-          npm run build:dll
+          yarn electron-builder -- install-app-deps --arch=${{matrix.arch}}
+          yarn run build:dll
 
       - name: Build rust files ${{matrix.target}}
         run: |
-          npm run build:rust --release --target=${{matrix.target}}
+          yarn run build:rust --release --target=${{matrix.target}}
 
       - name: Build electron files main
         run: |
-          npm run build:main
+          yarn run build:main
       - name: Build electron files rendered
         run: |
-          npm run build:renderer
+          yarn run build:renderer
 
       - name: Publish releases
         env:
@@ -118,4 +122,4 @@ jobs:
           # This is used for uploading release assets to github
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npm exec electron-builder -- --publish always ${{matrix.package_arg}}
+          yarn electron-builder -- --publish always ${{matrix.package_arg}}
