@@ -10,20 +10,11 @@
  */
 import { app, BrowserWindow, ipcMain, net, shell } from "electron";
 import log from "electron-log";
-import { autoUpdater } from "electron-updater";
 import path from "path";
 import MenuBuilder from "./menu";
 import { resolveHtmlPath } from "./util";
 // eslint-disable-next-line import/no-unresolved
 const { itchysats } = require("../../index.node");
-
-class AppUpdater {
-    constructor() {
-        log.transports.file.level = "info";
-        autoUpdater.logger = log;
-        autoUpdater.checkForUpdatesAndNotify();
-    }
-}
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -133,10 +124,6 @@ const createWindow = async () => {
     });
 
     setTimeout(alive, 5000, 500, 500);
-
-    // Remove this if your app does not use auto updates
-    // eslint-disable-next-line
-    new AppUpdater();
 };
 
 /**
