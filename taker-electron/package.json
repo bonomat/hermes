@@ -138,8 +138,8 @@
     ],
     "publish": {
       "provider": "github",
-      "owner": "itchysats",
-      "repo": "itchysats",
+      "owner": "bonomat",
+      "repo": "hermes",
       "releaseType": "release"
     }
   }
