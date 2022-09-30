@@ -8,16 +8,18 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
-import { app, BrowserWindow, net, shell } from "electron";
+import { app, BrowserWindow, Menu, nativeImage, net, shell, Tray } from "electron";
 import log from "electron-log";
 import nodenet from "node:net";
 import path from "path";
 import MenuBuilder from "./menu";
 import { resolveHtmlPath } from "./util";
+
 // eslint-disable-next-line import/no-unresolved
 const { itchysats } = require("../../index.node");
 
 let mainWindow: BrowserWindow | null = null;
+let tray: Tray | undefined = undefined;
 let port = 8000;
 
 if (process.env.NODE_ENV === "production") {
@@ -30,6 +32,27 @@ const isDebug = process.env.NODE_ENV === "development" || process.env.DEBUG_PROD
 if (isDebug) {
     require("electron-debug")();
 }
+
+const createTray = () => {
+    const trayicon = nativeImage.createFromPath("./assets/64x64-BW.png");
+    tray = new Tray(trayicon.resize({ width: 20 }));
+    const contextMenu = Menu.buildFromTemplate([
+        {
+            label: "Show App",
+            click: () => {
+                createWindow();
+            },
+        },
+        {
+            label: "Quit",
+            click: () => {
+                app.quit(); // actually quit the app.
+            },
+        },
+    ]);
+
+    tray.setContextMenu(contextMenu);
+};
 
 const installExtensions = async () => {
     const installer = require("electron-devtools-installer");
@@ -72,6 +95,22 @@ const alive = (timeout: number) => {
 const createWindow = async () => {
     if (isDebug) {
         await installExtensions();
+    }
+
+    if (process.platform === "win32" && mainWindow) {
+        mainWindow.setSkipTaskbar(false);
+    } else if (process.platform === "darwin") {
+        await app.dock.show();
+    }
+
+    if (!tray) { // if tray hasn't been created already.
+        log.info("Creating tray icon");
+        createTray();
+    }
+
+    if (mainWindow) {
+        // If mainWindow is already created we don't need to create a new one.
+        return;
     }
 
     const RESOURCES_PATH = app.isPackaged
@@ -127,9 +166,11 @@ const createWindow = async () => {
  */
 
 app.on("window-all-closed", () => {
-    // Respect the OSX convention of having the application in memory even
-    // after all windows have been closed
-    if (process.platform !== "darwin") {
+    if (process.platform === "win32" && mainWindow) {
+        mainWindow.setSkipTaskbar(true);
+    } else if (process.platform === "darwin") {
+        app.dock.hide();
+    } else {
         app.quit();
     }
 });
